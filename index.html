@@ -23,13 +23,21 @@
         opacity: 0.9;
         position: absolute;
     }
+
+    p {
+        width: 950px;
+        font-family: Helvetica, sans-serif;
+        text-align: center;
+    }
 </style>
 </head>
 
 <body>
+<p>Cas de grippe en France en 2014</p>
+
   <script>
 
-    var width = 700;
+var width = 700;
 var height = 580;
 
 var svg = d3.select("body")
@@ -50,6 +58,8 @@ var tooltip = d3.select('body')
 d3.csv("GrippeFrance2014.csv", function (data) {
 
     d3.json("france.json", function (json) {
+
+        console.log(data);
 
         svg.selectAll("path")
             .data(json.features)
@@ -101,6 +111,7 @@ function getRegionColor(data, d, selection) {
 }
 
 function onMouseMove(d, element) {
+
     var mouse = d3.mouse(svg.node()).map(function (d) {
         return parseInt(d);
     });
@@ -121,11 +132,35 @@ function onMouseOut(element) {
 }
 
 function onMouseClick(data) {
+
+    var filteredData = []
+
+    for (var i = 0; i < data.length; i++) {
+        var sum = 0;
+
+        for (key in data[i]) {
+            //console.log(key);
+            if (key.includes("/11/14")) {
+                sum += +data[i][key];
+            }
+        }
+
+        var obj = new Object();
+        obj.region = data[i].region;
+        obj.sum = sum
+        filteredData.push(obj);
+    }
+
+    console.log(filteredData);
+
     svg.selectAll("path")
         .transition()
         .style("fill", function (d) {
-            return getRegionColor(data, d, "01/06/14");
+            return getRegionColor(filteredData, d, "sum");
         });
+
+    d3.select("p")
+        .text("Cas de grippe en France en Novembre 2014");
 }
     
   </script>
